@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import "hardhat/console.sol";
 import "./ExampleExternalContract.sol";
 
-//TODO: Update the interest mechanism in the Staker.sol contract so that you receive a "non-linear" amount of ETH based on the blocks between deposit and withdrawal
+//TODO: Update the interest mechanism in the Staker.sol contract so that you receive a "non-linear" amount of ETH based on the blocks between deposit and withdrawal (I suggest implementing a basic exponential function!)
 //TODO: Allow users to deposit any arbitrary amount of ETH into the smart contract, not just 0.5 ETH.
 //TODO: Instead of using the vanilla ExampleExternalContract contract, implement a function in Staker.sol that allows you to retrieve the ETH locked up in ExampleExternalContract and re-deposit it back into the Staker contract.
 //  Make sure to only "white-list" a single address to call this new function to gate its usage!
