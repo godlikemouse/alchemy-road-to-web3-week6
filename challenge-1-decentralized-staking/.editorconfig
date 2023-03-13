@@ -1,0 +1,9 @@
+root = true
+
+[packages/**.js{,x}]
+indent_style = space
+indent_size = 4
+
+[*.{sol,yul}]
+indent_style = space
+indent_size = 4
