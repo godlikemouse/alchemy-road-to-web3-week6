@@ -28,7 +28,7 @@ contract ExampleExternalContract {
     function execute() public {
         uint256 contractBalance = address(this).balance;
         (bool sent, ) = address(staker).call{value: contractBalance}("");
-        require(sent, "RIP; sendToStaker failed :( ");
+        require(sent, "Error: ExampleExternalContract.execute failed :( ");
         emit Sent(address(staker), contractBalance);
     }
 

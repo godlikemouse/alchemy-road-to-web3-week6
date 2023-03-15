@@ -47,14 +47,12 @@ contract Staker {
         require(sent, "RIP; withdrawal failed :( ");
     }
 
-    // Allows any user to repatriate "unproductive" funds that are left in the
-    // staking contract past the defined withdrawal period
     function execute() public {
         uint256 contractBalance = address(this).balance;
         (bool sent, ) = address(exampleExternalContract).call{
             value: contractBalance
         }("");
-        require(sent, "RIP; execute failed :( ");
+        require(sent, "Error Staker.execute failed :( ");
     }
 
     // Time to "kill-time" on our local testnet
