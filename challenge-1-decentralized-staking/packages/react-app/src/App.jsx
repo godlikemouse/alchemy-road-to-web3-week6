@@ -1,7 +1,7 @@
 import WalletConnectProvider from "@walletconnect/web3-provider";
 //import Torus from "@toruslabs/torus-embed"
 import WalletLink from "walletlink";
-import { Alert, Button, Col, Menu, Row, List, Divider } from "antd";
+import { Alert, Button, Col, Menu, Row, Input, Divider } from "antd";
 import "antd/dist/antd.css";
 import React, { useCallback, useEffect, useState } from "react";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
@@ -194,6 +194,7 @@ function App(props) {
 
     const [injectedProvider, setInjectedProvider] = useState();
     const [address, setAddress] = useState();
+    const [ethAmount, setEthAmount] = useState(0.5);
 
     const logoutOfWeb3Modal = async () => {
         await web3Modal.clearCachedProvider();
@@ -297,6 +298,14 @@ function App(props) {
     );
     if (DEBUG) console.log("💵 stakerContractBalance", stakerContractBalance);
 
+    const exampleContractBalance = useBalance(
+        localProvider,
+        readContracts && readContracts.ExampleExternalContract
+            ? readContracts.ExampleExternalContract.address
+            : null
+    );
+    if (DEBUG) console.log("💵 exampleContractBalance", exampleContractBalance);
+
     const rewardRatePerSecond = useContractReader(
         readContracts,
         "Staker",
@@ -321,7 +330,7 @@ function App(props) {
         localProvider,
         1
     );
-    console.log("📟 stake events:", stakeEvents);
+    console.log("📟 staker stake events:", stakeEvents);
 
     const receiveEvents = useEventListener(
         readContracts,
@@ -330,9 +339,28 @@ function App(props) {
         localProvider,
         1
     );
-    console.log("📟 receive events:", receiveEvents);
+    console.log("📟 staker receive events:", receiveEvents);
+
+    const exampleReceiveEvents = useEventListener(
+        readContracts,
+        "ExampleExternalContract",
+        "Received",
+        localProvider,
+        1
+    );
+    console.log("📟 example receive events:", exampleReceiveEvents);
+
+    const exampleSentEvents = useEventListener(
+        readContracts,
+        "ExampleExternalContract",
+        "Sent",
+        localProvider,
+        1
+    );
+    console.log("📟 example sent events:", exampleSentEvents);
 
     // ** keep track of a variable from the contract in the local React state:
+    /*
     const claimPeriodLeft = useContractReader(
         readContracts,
         "Staker",
@@ -346,14 +374,17 @@ function App(props) {
         "withdrawalTimeLeft"
     );
     console.log("⏳ Withdrawal Time Left:", withdrawalTimeLeft);
+    */
 
     // ** Listen for when the contract has been 'completed'
+    /*
     const complete = useContractReader(
         readContracts,
         "ExampleExternalContract",
         "completed"
     );
     console.log("✅ complete:", complete);
+    */
 
     const exampleExternalContractBalance = useBalance(
         localProvider,
@@ -367,6 +398,7 @@ function App(props) {
             exampleExternalContractBalance
         );
 
+    /*
     let completeDisplay = "";
     if (complete) {
         completeDisplay = (
@@ -387,6 +419,7 @@ function App(props) {
             </div>
         );
     }
+    */
 
     /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -677,7 +710,7 @@ function App(props) {
 
                 <Switch>
                     <Route exact path="/">
-                        {completeDisplay}
+                        {/* {completeDisplay} */}
 
                         <div style={{ padding: 8, marginTop: 16 }}>
                             <div>Staker Contract:</div>
@@ -686,6 +719,20 @@ function App(props) {
                                     readContracts &&
                                     readContracts.Staker &&
                                     readContracts.Staker.address
+                                }
+                            />
+                        </div>
+
+                        <Divider />
+
+                        <div style={{ padding: 8, marginTop: 16 }}>
+                            <div>Example Contract:</div>
+                            <Address
+                                value={
+                                    readContracts &&
+                                    readContracts.ExampleExternalContract &&
+                                    readContracts.ExampleExternalContract
+                                        .address
                                 }
                             />
                         </div>
@@ -703,7 +750,7 @@ function App(props) {
 
                         <Divider />
 
-                        <div
+                        {/* <div
                             style={{
                                 padding: 8,
                                 marginTop: 16,
@@ -729,6 +776,16 @@ function App(props) {
                                 humanizeDuration(
                                     withdrawalTimeLeft.toNumber() * 1000
                                 )}
+                        </div> */}
+
+                        <Divider />
+
+                        <div style={{ padding: 8, fontWeight: "bold" }}>
+                            <div>Total Available ETH in Example Contract:</div>
+                            <Balance
+                                balance={exampleContractBalance}
+                                fontSize={64}
+                            />
                         </div>
 
                         <Divider />
@@ -763,6 +820,19 @@ function App(props) {
                             <Button
                                 type={"default"}
                                 onClick={() => {
+                                    tx(
+                                        writeContracts.ExampleExternalContract.execute()
+                                    );
+                                }}
+                            >
+                                📡 Recoup!
+                            </Button>
+                        </div>
+
+                        <div style={{ padding: 8 }}>
+                            <Button
+                                type={"default"}
+                                onClick={() => {
                                     tx(writeContracts.Staker.withdraw());
                                 }}
                             >
@@ -771,19 +841,27 @@ function App(props) {
                         </div>
 
                         <div style={{ padding: 8 }}>
+                            <Input
+                                type="number"
+                                placeholder={0.5}
+                                min={0.5}
+                                onChange={(e) => setEthAmount(e.target.value)}
+                                value={ethAmount}
+                                style={{ width: "100px" }}
+                            />
                             <Button
                                 type={balanceStaked ? "success" : "primary"}
                                 onClick={() => {
                                     tx(
                                         writeContracts.Staker.stake({
                                             value: ethers.utils.parseEther(
-                                                "0.5"
+                                                ethAmount.toString()
                                             ),
                                         })
                                     );
                                 }}
                             >
-                                🥩 Stake 0.5 ether!
+                                🥩 Stake!
                             </Button>
                         </div>
 
